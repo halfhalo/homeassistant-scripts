@@ -43,13 +43,50 @@ sequence:
       - condition: template
         value_template: "{{ enabled }}"
     then:
-      - service: climate.set_temperature
-        target:
-          entity_id: "{{ target_entity }}"
-        data:
-          hvac_mode: "{{ hvac_mode }}"
-          target_temp_low: "{{ target_temp_low }}"
-          target_temp_high: "{{ target_temp_high }}"
+      - if:
+          - condition: template
+            value_template: "{{ hvac_mode == 'heat_cool' }}"
+        then:
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ target_entity }}"
+            data:
+              hvac_mode: "{{ hvac_mode }}"
+              target_temp_low: "{{ target_temp_low }}"
+              target_temp_high: "{{ target_temp_high }}"
+        else: []
+      - if:
+          - condition: template
+            value_template: "{{ hvac_mode == 'cool' }}"
+        then:
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ target_entity }}"
+            data:
+              hvac_mode: "{{ hvac_mode }}"
+              temperature: "{{ target_temp }}"
+        else: []
+      - if:
+          - condition: template
+            value_template: "{{ hvac_mode == 'heat' }}"
+        then:
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ target_entity }}"
+            data:
+              hvac_mode: "{{ hvac_mode }}"
+              temperature: "{{ target_temp }}"
+        else: []
+      - if:
+          - condition: template
+            value_template: "{{ hvac_mode == 'off' }}"
+        then:
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ target_entity }}"
+            data:
+              hvac_mode: "{{ hvac_mode }}"
+        else: []
     else: []
 mode: single
 icon: mdi:thermometer
