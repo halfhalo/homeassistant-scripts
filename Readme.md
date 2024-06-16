@@ -1,0 +1,1 @@
+Set of scripts I use for home assistant because I keep overwriting them in the UI

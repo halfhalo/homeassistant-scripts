@@ -1,0 +1,55 @@
+alias: Climate Mirror Nest
+fields:
+  source_entity:
+    selector:
+      entity: {}
+    name: source_entity
+    description: Source Nest
+    default: climate.office_nest
+  target_entity:
+    selector:
+      entity: {}
+    name: target_entity
+    description: Target Kumo
+    default: climate.office_kumo
+  entity_name:
+    selector:
+      text: null
+    name: Entity Name
+  enabled:
+    selector:
+      boolean: {}
+    name: Enabled
+    default: true
+sequence:
+  - variables:
+      hvac_mode: "{{ states(source_entity)}}"
+      target_temp_low: " {{ state_attr(source_entity, 'target_temp_low') }}"
+      target_temp_high: " {{ state_attr(source_entity, 'target_temp_high') }}"
+      target_temp: " {{ state_attr(source_entity, 'temperature') }}"
+      hvac_mode_existing: "{{ states(target_entity)}}"
+      target_temp_low_existing: " {{ state_attr(target_entity, 'target_temp_low') }}"
+      target_temp_high_existing: " {{ state_attr(target_entity, 'target_temp_high') }}"
+  - if:
+      - condition: template
+        value_template: "{{ hvac_mode == hvac_mode_existing }}"
+      - condition: template
+        value_template: "{{ target_temp_low == target_temp_low_existing }}"
+      - condition: template
+        value_template: "{{ target_temp_high ==  target_temp_high_existing }}"
+    then: []
+    else: []
+  - if:
+      - condition: template
+        value_template: "{{ enabled }}"
+    then:
+      - service: climate.set_temperature
+        target:
+          entity_id: "{{ target_entity }}"
+        data:
+          hvac_mode: "{{ hvac_mode }}"
+          target_temp_low: "{{ target_temp_low }}"
+          target_temp_high: "{{ target_temp_high }}"
+    else: []
+mode: single
+icon: mdi:thermometer
